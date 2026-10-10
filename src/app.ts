@@ -1,24 +1,30 @@
-import express, {type Application } from "express";
-import {type fileURLToPath } from "url";
+import express, { type Application, type Request, type Response } from "express";
 import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import router from "./routes/routes";
+
 dotenv.config();
 
-
 const app: Application = express();
+
+// Middlewares
 app.use(cors());
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
-const PORT = 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-}); 
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+// API Routes
+app.use("/api/v1", router);
+// Serve static files from public directory
+app.use(express.static(path.join(process.cwd(), "public")));
+
+// Root API route
+app.get("/", (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: "Express + TypeScript server is running!",
+  });
+});
+
+export default app;
